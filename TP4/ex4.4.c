@@ -12,7 +12,8 @@ int choisirAction(){
 	printf("	4) Changement de la taille de l’image\n");
 	printf("	5) Affichage de l’histogramme de l’image\n");
 	printf("	6) Suppression de l’image\n");
-	printf("	7) Quitter le programme\n");
+	printf("	7) Rotation de l'image de 90°\n");
+	printf("	8) Quitter le programme\n");
 	scanf("%d", &choix);
 	return choix;
 }
@@ -149,7 +150,7 @@ int** changerTailleImage(int** image, int nbLignes, int nbColonnes, int newLigne
 	return image;
 }
 
-int* calculerHistogramme(int** image, int nbLignes, int nbColonnes, int nbElements){
+int* calculerHistogramme(int** image, int nbLignes, int nbColonnes, int nbElements, int profondeurBits){
 	int* histogramme = (int*) malloc(nbElements*sizeof(int));
 	if(histogramme==NULL) exit(1);
 	for (int i = 0; i < nbLignes; ++i)
@@ -159,26 +160,52 @@ int* calculerHistogramme(int** image, int nbLignes, int nbColonnes, int nbElemen
 			histogramme[*ptrColonne]++;
 		}
 	}
-	for (int *ptr=histogramme; ptr-histogramme<nbElements; ++ptr)
+	for (int *ptr=histogramme; ptr-histogramme<pow(2, profondeurBits); ++ptr)
 	{
-		printf("#pixels de valeur %d: %d\n", (int)(ptr-histogramme), *ptr);
+		if(*ptr > 0) 
+			printf("#pixels de valeur %d: %d\n", (int)(ptr-histogramme), *ptr);
 	}
 	free(histogramme);
-	printf("Nombre de pixels dans l'image: %d\n", nbLignes*nbColonnes);
+	printf("Nombre de pixels dans l'image: %d\n", nbElements);
 	return histogramme;
 }
 
-void freeImage(int** image, int nbLignes){
+int** rotationImage(int** image, int nbLignes, int nbColonnes){
+	int** imageRotation = (int**) malloc(nbLignes*sizeof(int*));
+	if(imageRotation==NULL) exit(1);
+	for (int i = 0; i < nbLignes; ++i)
+	{
+		imageRotation[i] = (int*) malloc(nbColonnes*sizeof(int));
+		if(imageRotation[i]==NULL) exit(1);
+	}
+	for (int i = 0; i < nbLignes; ++i)
+	{
+		for (int j = 0; j < nbColonnes; ++j)
+		{
+			imageRotation[j][(nbLignes-1)-i] = image[i][j];
+		}
+	}
 	for (int i = 0; i < nbLignes; ++i)
 		free(image[i]);
 	free(image);
+	image = imageRotation;
+	return image;
+}
+
+void freeImage(int** image, int nbLignes){
+	if(image==NULL) printf("Aucune image à libérer\n");
+	else{
+		for (int i = 0; i < nbLignes; ++i)
+			free(image[i]);
+		free(image);
+	}
 }
 
 int main(int argc, char const *argv[]){
 	int ** image = NULL;
 	int nbLignes = 0, nbColonnes = 0, choix = 0, profondeurBits = 0, newLignes = 0, newColonnes = 0, nbElements = 0;
 	choix = choisirAction();
-	while(choix != 7){
+	while(choix != 8){
 		switch(choix){
 			case 1:
 				printf("Entrez le nombre de lignes: ");
@@ -210,13 +237,19 @@ int main(int argc, char const *argv[]){
 				nbColonnes=newColonnes;
 				break;
 			case 5:
-				calculerHistogramme(image, nbLignes, nbColonnes, nbElements);
+				nbElements = nbLignes*nbColonnes;
+				calculerHistogramme(image, nbLignes, nbColonnes, nbElements, profondeurBits);
 				break;
 			case 6:
 				printf("Liberation de la memoire dynamique\n");
 				freeImage(image, nbLignes);
 				break;
 			case 7:
+				if(image==NULL) printf("Pas d'image existante\n");
+				else image = rotationImage(image, nbLignes, nbColonnes);
+				break;
+			case 8:
+				printf("Sortie du programme\n");
 				freeImage(image, nbLignes);
 				exit(1);
 		}
