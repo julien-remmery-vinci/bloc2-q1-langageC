@@ -3,8 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-int choisirAction(){
-	int choix = 0;
+void choisirAction(int *choix){
 	printf("MENU:\n");
 	printf("	1) Création d’une image de dimensions précisées par l’utilisateur avec valeurs aléatoires pour les pixels\n");
 	printf("	2) Création d’une image de dimensions précisées par l’utilisateur avec valeurs prédéfinies pour les pixels\n");
@@ -14,8 +13,7 @@ int choisirAction(){
 	printf("	6) Suppression de l’image\n");
 	printf("	7) Rotation de l'image de 90°\n");
 	printf("	8) Quitter le programme\n");
-	scanf("%d", &choix);
-	return choix;
+	scanf("%d", choix);
 }
 
 int** creerImageAleatoire(int nbLignes, int nbColonnes, int profondeurBits){
@@ -204,8 +202,9 @@ void freeImage(int** image, int nbLignes){
 
 int main(int argc, char const *argv[]){
 	int ** image = NULL;
-	int nbLignes = 0, nbColonnes = 0, choix = 0, profondeurBits = 0, newLignes = 0, newColonnes = 0, nbElements = 0;
-	choix = choisirAction();
+	int nbLignes = 0, nbColonnes = 0, profondeurBits = 0, newLignes = 0, newColonnes = 0, nbElements = 0;
+	int choix;
+	choisirAction(&choix);
 	while(choix != 8){
 		switch(choix){
 			case 1:
@@ -251,9 +250,9 @@ int main(int argc, char const *argv[]){
 				break;
 			case 8:
 				printf("Sortie du programme\n");
-				freeImage(image, nbLignes);
+				freeImage(&image, nbLignes);
 				exit(1);
 		}
-		choix = choisirAction();
+		choisirAction(choix);
 	}
 }

@@ -59,4 +59,4 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < hauteur; ++i)
     	free(grille[i]);
     free(grille);
-}
+}-
